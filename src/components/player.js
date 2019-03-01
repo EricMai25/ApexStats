@@ -1,5 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Image, Tab, Tabs } from "react-bootstrap";
+import Donut from './dounut'
+
 import "./player.css";
 
 const player = ({ play }) => {
@@ -22,6 +24,13 @@ const player = ({ play }) => {
     "Wraith",
     "Caustic"
   ];
+  let killData = ()=>{
+    let result = []
+    legends.forEach(legend=>{
+      result.push(play[kill(legend)])
+    })
+    return result
+  }
   let i = 0;
   return (
     <Container className="playerSearch">
@@ -47,7 +56,7 @@ const player = ({ play }) => {
         <Row>
           <Col>
             <Container>
-              <h3>Recently Played: {play.legend}</h3>
+              <h4>Recently Played: {play.legend}</h4>
               <Image
                 src={`https://s3-us-west-1.amazonaws.com/apexprojectem/images/${
                   play.legend
@@ -68,6 +77,7 @@ const player = ({ play }) => {
             <h6>Damage: {play.damage}</h6>
             <h6>Headshots: {play.headshots}</h6>
             <h6>Kills: {play.kills}</h6>
+            <Donut legend={legends} kills={killData()} />
           </Col>
         </Row>
       </Container>
