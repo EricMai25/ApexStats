@@ -1,10 +1,13 @@
 import React, { Component } from "react";
 import axios from "axios";
+import { BrowserRouter, Route} from "react-router-dom";
+import {Jumbotron, Container, Row, Col, Image} from 'react-bootstrap'
 import "./App.css";
 import Player from "./components/player";
 import Home from "./components/home";
-import search from './components/search'
 import Search from "./components/search";
+import Searched from "./components/searched";
+import NavBar from './components/navbar'
 
 class App extends Component {
   constructor(props) {
@@ -16,23 +19,24 @@ class App extends Component {
         "1ac1911a4ac43b03176a74f805ef97c5"
       ],
       player: {},
-      homePlayer: []
+      homePlayer: [],
+      searched: []
     };
   }
   componentDidMount() {
     let name = this.state.playerSearch;
     let fun = this.getPlayer;
-    let arr = []
-    name.forEach(name =>{
-      arr.push(fun(name))
-    })
-    axios.all(arr)
-    .then(axios.spread((a,b,c)=>{
-      this.setState({
-        homePlayer : [a.data,b.data,c.data]
+    let arr = [];
+    name.forEach(name => {
+      arr.push(fun(name));
+    });
+    axios.all(arr).then(
+      axios.spread((a, b, c) => {
+        this.setState({
+          homePlayer: [a.data, b.data, c.data]
+        });
       })
-    }))
-    
+    );
   }
   searchPlayer(name) {
     axios
@@ -43,37 +47,64 @@ class App extends Component {
         }
       })
       .then(res => {
-        console.log(res.data);
-        // this.setState({
-        //   homePlayer : res.data
-        // })
+        this.setState({
+          searched: res.data.results
+        });
       })
       .catch(err => {
         console.log(err);
       });
   }
   getPlayer(id) {
-    return axios
-      .get("https://apextab.com/api/player.php", {
-        params: {
-          aid: id
-        }
-      })
-      // .then(res => {
-      //   return res.data
-      // })
-      // .catch(err => {
-      //   console.log(err);
-      // });
+    return axios.get("https://apextab.com/api/player.php", {
+      params: {
+        aid: id
+      }
+    });
   }
-
+  singlePlayer(id){
+    axios.get("https://apextab.com/api/player.php", {
+      params: {
+        aid: id
+      }
+    })
+    .then(res => {
+      this.setState({
+        player : res.data
+      })
+    })
+    .catch(err =>{
+      console.log(err)
+    })
+  }
   render() {
     return (
-      <div className="App">
-        <Search/>
-        <Home home={this.state.homePlayer} />
-        {/* <Player play={this.state.player} /> */}
-      </div>
+      <Container className="App">
+        <BrowserRouter>
+          <Container>
+            <NavBar search={this.searchPlayer.bind(this)}/>
+            <Route
+              path="/Searches"
+              render={props => {
+                return <Searched allPlayer={this.state.searched} single={this.singlePlayer.bind(this)} />;
+              }}
+            />
+            <Route
+              exact
+              path="/"
+              render={props => {
+                return <Home home={this.state.homePlayer} single={this.singlePlayer.bind(this)}/>;
+              }}
+            />
+            <Route
+              path={`/${this.state.player.name}`}
+              render={props => {
+                return <Player play={this.state.player} />;
+              }}
+            />
+          </Container>
+        </BrowserRouter>
+      </Container>
     );
   }
 }
