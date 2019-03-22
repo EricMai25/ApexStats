@@ -1,4 +1,4 @@
-#APEX Stats#
+# APEX Stats #
 ## Summary
 Apex Legend player statistic search. 
 Ability to show personal statistics and which Legend you play well in.
